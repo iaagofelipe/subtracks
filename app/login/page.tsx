@@ -57,6 +57,12 @@ export default function LoginPage() {
             </div>
           )}
 
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-lg text-sm">
+            <p className="font-medium mb-1">Usuário de demonstração:</p>
+            <p>E-mail: <code className="bg-blue-100 px-1 rounded">demo@subtrack.com</code></p>
+            <p>Senha: <code className="bg-blue-100 px-1 rounded">demo123</code></p>
+          </div>
+
           <div>
             <Label htmlFor="email">E-mail</Label>
             <Input

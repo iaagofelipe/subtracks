@@ -33,6 +33,14 @@ export default function HomePage() {
             </Link>
           </div>
 
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-600 mb-2">Ou experimente com o usuário de demonstração:</p>
+            <div className="inline-flex items-center gap-2 text-sm bg-blue-50 text-blue-700 px-3 py-2 rounded-lg">
+              <span>demo@subtrack.com</span>
+              <span className="text-blue-400">•</span>
+              <span>demo123</span>
+            </div>
+          </div>
           {/* Dashboard Preview */}
           <div className="mt-16 bg-white rounded-2xl shadow-xl border border-gray-200 p-6 lg:p-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

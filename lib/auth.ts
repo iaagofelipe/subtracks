@@ -69,6 +69,23 @@ export class AuthService {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Demo user credentials
+    if (email === 'demo@subtrack.com' && password === 'demo123') {
+      const user: User = {
+        id: 'demo',
+        name: 'Usuário Demo',
+        email: 'demo@subtrack.com'
+      };
+
+      this.authState = {
+        user,
+        isAuthenticated: true
+      };
+      
+      this.notify();
+      return { success: true };
+    }
+    
     const user: User = {
       id: '1',
       name: 'João Silva',
