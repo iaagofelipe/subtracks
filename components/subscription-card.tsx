@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { CreditCard as Edit, Trash2, CreditCard } from 'lucide-react';
+import { Pencil as Edit, Trash2, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDate } from '@/lib/currency';
 import type { Subscription } from '@/types';
