@@ -8,17 +8,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { Subscription } from '@/types';
+import type {BillingCycle, Subscription} from '@/types';
 
 interface SubscriptionFormProps {
     subscription?: Subscription;
-    // Alteramos a prop para receber os dados do formulário
     onSubmit: (data: Omit<Subscription, 'id'>) => Promise<void>;
     onSuccess?: () => void;
 }
 
+// Criamos uma interface para o estado do nosso formulário
+interface FormData {
+    name: string;
+    category: string;
+    amount: string;
+    billingCycle: BillingCycle;
+    nextRenewal: string;
+    paymentMethod: string;
+}
+
 export function SubscriptionForm({ subscription, onSubmit, onSuccess }: SubscriptionFormProps) {
-    const [formData, setFormData] = useState({
+    const [formData, setFormData] = useState<FormData>({
         name: subscription?.name || '',
         category: subscription?.category || '',
         amount: subscription?.amount?.toString() || '',
@@ -43,15 +52,8 @@ export function SubscriptionForm({ subscription, onSubmit, onSuccess }: Subscrip
 
         try {
             const subscriptionData = {
-                name: formData.name,
-                category: formData.category,
+                ...formData,
                 amount: parseFloat(formData.amount),
-                billingCycle: formData.billingCycle as 'mensal' | 'anual',
-                nextRenewal: formData.nextRenewal,
-                paymentMethod: formData.paymentMethod,
-                // Incluindo a propriedade 'logo' que pode estar faltando no seu tipo,
-                // caso o backend espere por ela. Se não, pode ser removida.
-                logo: '',
             };
 
             // Chamamos a função recebida via props
@@ -59,7 +61,6 @@ export function SubscriptionForm({ subscription, onSubmit, onSuccess }: Subscrip
 
         } catch (error) {
             console.error('Error saving subscription:', error);
-            // Você pode adicionar um toast de erro aqui
         } finally {
             setIsSubmitting(false);
         }
@@ -67,9 +68,9 @@ export function SubscriptionForm({ subscription, onSubmit, onSuccess }: Subscrip
 
     const handleCancel = () => {
         if (onSuccess) {
-            onSuccess(); // Se for um modal, apenas fecha
+            onSuccess();
         } else {
-            router.push('/dashboard'); // Se for uma página, volta pro dashboard
+            router.push('/dashboard');
         }
     };
 
@@ -132,7 +133,7 @@ export function SubscriptionForm({ subscription, onSubmit, onSuccess }: Subscrip
 
                 <div>
                     <Label htmlFor="billingCycle">Ciclo de cobrança</Label>
-                    <Select value={formData.billingCycle} onValueChange={(value) => setFormData({ ...formData, billingCycle: value })}>
+                    <Select value={formData.billingCycle} onValueChange={(value) => setFormData({ ...formData, billingCycle: value as BillingCycle })}>
                         <SelectTrigger className="mt-1">
                             <SelectValue />
                         </SelectTrigger>
