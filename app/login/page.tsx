@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { AuthLayout } from '@/components/layouts/auth-layout';
-import { AuthService } from '@/lib/auth';
+import { authService } from '@/lib/auth';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -18,28 +18,28 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isSubmitting) return;
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (isSubmitting) return;
 
-    setError('');
-    setIsSubmitting(true);
+        setError('');
+        setIsSubmitting(true);
 
-    try {
-      const authService = AuthService.getInstance();
-      const result = await authService.login(formData.email, formData.password);
-      
-      if (result.success) {
-        router.push('/dashboard');
-      } else {
-        setError(result.error || 'Credenciais inválidas');
-      }
-    } catch (error) {
-      setError('Erro interno do servidor');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+        try {
+            // Use a instância importada
+            const result = await authService.login(formData.email, formData.password);
+
+            if (result.success) {
+                router.push('/dashboard');
+            } else {
+                setError(result.error || 'Credenciais inválidas');
+            }
+        } catch (error) {
+            setError('Erro interno do servidor');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
   return (
     <AuthLayout>

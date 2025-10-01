@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { User, Settings, LogOut, ChevronDown } from 'lucide-react';
 import { AuthService } from '@/lib/auth';
 import type { User as UserType } from '@/types';
+import { authService } from '@/lib/auth';
 
 interface UserMenuProps {
   user: UserType | null;
@@ -29,11 +30,10 @@ export function UserMenu({ user }: UserMenuProps) {
     }
   }, [isOpen]);
 
-  const handleLogout = async () => {
-    await AuthService.getInstance().logout();
-    router.push('/');
-    setIsOpen(false);
-  };
+    const handleLogout = () => {
+        authService.logout();
+        router.push('/login');
+    };
 
   if (!user) return null;
 

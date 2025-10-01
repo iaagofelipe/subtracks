@@ -1,117 +1,61 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Plus, Inbox, Banknote, Calendar } from 'lucide-react';
+import { subscriptionService } from '@/lib/subscriptions';
+import { Subscription } from '@/types';
+import withAuth from '@/components/with-auth';
+import {SubscriptionCard} from '@/components/subscription-card';
 import { Button } from '@/components/ui/button';
-import { AppLayout } from '@/components/layouts/app-layout';
-import { SubscriptionCard } from '@/components/subscription-card';
-import { SubscriptionService } from '@/lib/subscriptions';
-import { formatCurrency } from '@/lib/currency';
-import type { Subscription, Metrics } from '@/types';
+import Link from 'next/link';
+import { PlusCircle } from 'lucide-react';
 
-export default function DashboardPage() {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [metrics, setMetrics] = useState<Metrics>({ totalMonthly: 0, upcomingCount: 0 });
+function DashboardPage() {
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const service = SubscriptionService.getInstance();
-    
-    // Initial data
-    const initialSubs = service.getAll();
-    setSubscriptions(initialSubs);
-    setMetrics(service.getMetrics());
-    
-    // Subscribe to updates
-    const unsubscribe = service.subscribe((newSubs) => {
-      setSubscriptions(newSubs);
-      setMetrics(service.getMetrics());
-    });
+    useEffect(() => {
+        const loadSubscriptions = async () => {
+            setIsLoading(true);
+            await subscriptionService.fetchAll();
+            setIsLoading(false);
+        };
 
-    return unsubscribe;
-  }, []);
+        loadSubscriptions();
 
-  const handleDelete = async (id: string) => {
-    const service = SubscriptionService.getInstance();
-    await service.delete(id);
-  };
+        const unsubscribe = subscriptionService.subscribe(setSubscriptions);
 
-  return (
-    <AppLayout>
-      <div className="space-y-8">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h1 className="text-3xl font-bold text-gray-900" style={{ fontFamily: 'Lekton, monospace' }}>
-            Minhas assinaturas
-          </h1>
-          <Link href="/add-subscription">
-            <Button className="bg-[#2563eb] hover:bg-[#1e40af] text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar assinatura
-            </Button>
-          </Link>
-        </div>
+        return () => unsubscribe();
+    }, []);
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-gradient-to-br from-[#2563eb] to-[#1e40af] text-white p-6 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm font-medium">Total mensal</p>
-                <p className="text-3xl font-bold">{formatCurrency(metrics.totalMonthly)}</p>
-              </div>
-              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-                <Banknote className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
+    if (isLoading) {
+        return <div>Carregando assinaturas...</div>;
+    }
 
-          <div className="bg-gradient-to-br from-[#0ea5e9] to-[#0284c7] text-white p-6 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sky-100 text-sm font-medium">Próximas renovações (30 dias)</p>
-                <p className="text-3xl font-bold">{metrics.upcomingCount}</p>
-              </div>
-              <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center">
-                <Calendar className="w-6 h-6" />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Subscriptions List */}
-        <div>
-          {subscriptions.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <Inbox className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Nenhuma assinatura ainda
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Adicione sua primeira assinatura para ver o total mensal.
-              </p>
-              <Link href="/add-subscription">
-                <Button className="bg-[#2563eb] hover:bg-[#1e40af] text-white">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Adicionar
+    return (
+        <div className="container mx-auto p-4">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold">Suas Assinaturas</h1>
+                <Button asChild>
+                    <Link href="/add-subscription">
+                        <PlusCircle className="mr-2 h-4 w-4" /> Adicionar Assinatura
+                    </Link>
                 </Button>
-              </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {subscriptions.map((subscription) => (
-                <SubscriptionCard
-                  key={subscription.id}
-                  subscription={subscription}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          )}
+
+            {subscriptions.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {subscriptions.map((sub) => (
+                        <SubscriptionCard key={sub.id} subscription={sub} />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-10">
+                    <p>Você ainda não tem nenhuma assinatura.</p>
+                    <p>Que tal <Link href="/add-subscription" className="text-blue-500 hover:underline">adicionar a primeira</Link>?</p>
+                </div>
+            )}
         </div>
-      </div>
-    </AppLayout>
-  );
+    );
 }
+
+export default withAuth(DashboardPage);
